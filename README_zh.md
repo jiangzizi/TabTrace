@@ -1,5 +1,7 @@
 # TabTrace
 
+> 📖 Also available in [English version](README.md)
+
 一款轻量级的 Chrome 扩展，用于追踪你的浏览时长并展示热门网站排行。
 
 ## 功能特点
