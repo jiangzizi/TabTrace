@@ -1,5 +1,7 @@
 # TabTrace
 
+> 📖 Also available in [中文版](README_zh.md)
+
 A lightweight Chrome extension that tracks your browsing time and displays your top sites.
 
 ## Features
