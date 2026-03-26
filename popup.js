@@ -36,6 +36,9 @@ function formatTimeShort(seconds) {
 }
 
 // 更新网站排行（只在打开时加载一次，不监听实时变化）
+let isExpanded = false;
+const TOP_SITES_COUNT = 5;
+
 function updateSitesList() {
   chrome.storage.local.get(['tabStats', 'dailyStats'], (result) => {
     const tabStats = result.tabStats || {};
@@ -46,33 +49,42 @@ function updateSitesList() {
     const sitesListEl = document.getElementById('sitesList');
     if (!sitesListEl) return;
 
-    // 按今日时长排序取前5
+    // 按今日时长排序
     const sortedDomains = Object.entries(todayData.domains || {})
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5);
+      .sort((a, b) => b[1] - a[1]);
 
     if (sortedDomains.length === 0) {
       sitesListEl.innerHTML = '<div class="empty-state">No data yet</div>';
-    } else {
-      const maxTime = sortedDomains[0][1];
+      updateExpandButton(0);
+      return;
+    }
 
-      sitesListEl.innerHTML = sortedDomains.map(([domain, time], index) => {
-        const percentage = Math.round((time / maxTime) * 100);
-        return `
-          <div class="site-item">
-            <img class="site-favicon" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt="" loading="lazy" onerror="this.style.display='none'">
-            <span class="site-rank">${index + 1}</span>
-            <div class="site-info">
-              <div class="site-domain">${domain}</div>
-              <div class="site-time">${formatTimeShort(time)}</div>
-            </div>
+    const maxTime = sortedDomains[0][1];
+    // 根据展开状态决定显示数量
+    const displayCount = isExpanded ? sortedDomains.length : TOP_SITES_COUNT;
+    const displayDomains = sortedDomains.slice(0, displayCount);
+
+    sitesListEl.innerHTML = displayDomains.map(([domain, time], index) => {
+      const percentage = Math.round((time / maxTime) * 100);
+      const timeStr = formatTimeShort(time);
+      // 简化域名显示，去掉 www. 前缀
+      const displayDomain = domain.replace(/^www\./, '');
+      return `
+        <div class="site-item">
+          <span class="site-rank">${index + 1}</span>
+          <img class="site-favicon" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt="" loading="lazy" onerror="this.style.display='none'">
+          <div class="site-info">
+            <div class="site-domain" title="${domain}">${displayDomain}</div>
+          </div>
+          <div class="site-right">
+            <span class="site-time">${timeStr}</span>
             <div class="site-bar">
               <div class="site-bar-fill" style="width: ${percentage}%"></div>
             </div>
           </div>
-        `;
-      }).join('');
-    }
+        </div>
+      `;
+    }).join('');
 
     // 更新访问计数
     const domainCount = Object.keys(tabStats).length;
@@ -80,7 +92,35 @@ function updateSitesList() {
     if (visitCountEl) {
       visitCountEl.textContent = `${domainCount} sites visited`;
     }
+
+    // 更新展开按钮状态
+    updateExpandButton(sortedDomains.length);
   });
+}
+
+// 更新展开按钮状态
+function updateExpandButton(totalCount) {
+  const expandBtn = document.getElementById('expandBtn');
+  const expandText = document.getElementById('expandText');
+  if (!expandBtn || !expandText) return;
+
+  if (totalCount <= TOP_SITES_COUNT) {
+    expandBtn.style.display = 'none';
+  } else {
+    expandBtn.style.display = 'flex';
+    expandText.textContent = isExpanded ? 'Show Less' : `Show All (${totalCount})`;
+    expandBtn.setAttribute('aria-expanded', isExpanded);
+  }
+}
+
+// 切换展开状态
+function toggleExpand() {
+  isExpanded = !isExpanded;
+  const sitesList = document.getElementById('sitesList');
+  if (sitesList) {
+    sitesList.classList.toggle('expanded', isExpanded);
+  }
+  updateSitesList();
 }
 
 // 更新今日总时长
@@ -140,6 +180,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // 只在打开时加载一次数据
   updateSitesList();
   updateTotalTime();
+
+  // 绑定展开按钮事件
+  const expandBtn = document.getElementById('expandBtn');
+  if (expandBtn) {
+    expandBtn.addEventListener('click', toggleExpand);
+  }
 
   // 每秒更新一次当前 tab 的时长
   setInterval(updateCurrentTab, 1000);
