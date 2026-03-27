@@ -4,6 +4,8 @@
 
 A lightweight Chrome extension that tracks your browsing time and displays your top sites.
 
+<img src="assets/demo.png" width="200" alt="TabTrace Demo">
+
 ## Features
 
 - **Today's browsing time** - See how much time you've spent browsing today

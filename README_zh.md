@@ -4,6 +4,8 @@
 
 一款轻量级的 Chrome 扩展，用于追踪你的浏览时长并展示热门网站排行。
 
+<img src="assets/demo.png" width="200" alt="TabTrace 演示">
+
 ## 功能特点
 
 - **今日浏览时长** - 查看今天花了多少时间浏览网页
