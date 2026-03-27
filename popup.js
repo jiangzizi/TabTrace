@@ -1,10 +1,11 @@
 // TabTrace Popup Script
 // 处理 popup 界面的数据展示和交互
 
-// 获取今日日期字符串
+// 获取今日日期字符串（以北京时间 UTC+8 24:00为界限）
 function getTodayKey() {
-  const today = new Date();
-  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const now = new Date();
+  const beijingTime = new Date(now.getTime() + 8 * 3600 * 1000);
+  return `${beijingTime.getUTCFullYear()}-${String(beijingTime.getUTCMonth() + 1).padStart(2, '0')}-${String(beijingTime.getUTCDate()).padStart(2, '0')}`;
 }
 
 // 格式化时间显示
@@ -156,14 +157,17 @@ async function updateCurrentTab() {
         hostname = url;
       }
 
-      if (currentDomainEl && currentDomainEl.textContent !== hostname) {
-        currentDomainEl.textContent = hostname;
+      const displayHostname = hostname.replace(/^www\./, '');
+      if (currentDomainEl && currentDomainEl.textContent !== displayHostname) {
+        currentDomainEl.textContent = displayHostname;
       }
 
       // 更新时长（每次都更新，因为这是实时数据）
-      chrome.storage.local.get(['tabStats'], (result) => {
-        const tabStats = result.tabStats || {};
-        const currentTime = tabStats[url]?.totalTime || 0;
+      chrome.storage.local.get(['dailyStats'], (result) => {
+        const dailyStats = result.dailyStats || {};
+        const todayKey = getTodayKey();
+        const todayData = dailyStats[todayKey] || { domains: {} };
+        const currentTime = todayData.domains[hostname] || 0;
 
         if (currentTimeEl) {
           currentTimeEl.textContent = formatTimeShort(currentTime);

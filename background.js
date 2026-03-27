@@ -8,10 +8,11 @@ let activeTabTitle = null;
 let lastActiveTime = null;
 let trackingInterval = null;
 
-// 获取今日日期字符串
+// 获取今日日期字符串（以北京时间 UTC+8 24:00为界限）
 function getTodayKey() {
-  const today = new Date();
-  return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const now = new Date();
+  const beijingTime = new Date(now.getTime() + 8 * 3600 * 1000);
+  return `${beijingTime.getUTCFullYear()}-${String(beijingTime.getUTCMonth() + 1).padStart(2, '0')}-${String(beijingTime.getUTCDate()).padStart(2, '0')}`;
 }
 
 // 初始化存储数据结构
