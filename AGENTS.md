@@ -10,21 +10,29 @@ TabTrace is a lightweight Chrome extension (Manifest V3) that tracks browsing ti
 ┌─────────────────────────────────────────────────────────────┐
 │                    Chrome Extension APIs                     │
 ├─────────────────────────────────────────────────────────────┤
-│  background.js (Service Worker)                              │
-│  - Listens to tab activation/update events                   │
-│  - Tracks active tab time every second                       │
-│  - Stores data to chrome.storage.local                       │
+│  src/background/ (Service Worker)                            │
+│  ├── index.js        - Entry point, initialization          │
+│  ├── storage.js      - Data persistence layer               │
+│  ├── tracker.js      - Tab tracking core logic              │
+│  └── events.js       - Chrome event handlers                │
 ├─────────────────────────────────────────────────────────────┤
-│  popup.js/html/css (UI)                                      │
-│  - Displays today's total time                               │
-│  - Shows top 5 sites by time                                 │
-│  - Shows current active tab info                             │
+│  src/popup/ (UI)                                             │
+│  ├── index.js        - Popup entry point                    │
+│  ├── mainPage.js     - Main page logic                      │
+│  ├── historyPage.js  - History page logic                   │
+│  └── styles/                                               │
+│       ├── base.css   - Base styles & variables              │
+│       ├── components.css - Reusable components              │
+│       └── pages.css  - Page-specific styles                 │
+├─────────────────────────────────────────────────────────────┤
+│  src/shared/                                                 │
+│  └── utils.js        - Shared utility functions             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ## Build & Commands
 
-No build process required. This is a pure vanilla JS extension.
+No build process required. This is a pure vanilla JS extension using IIFE modules.
 
 **Installation**:
 1. Open `chrome://extensions/`
@@ -37,15 +45,54 @@ No build process required. This is a pure vanilla JS extension.
 
 ## Code Architecture
 
-### Core Files
+### Directory Structure
 
-| File | Purpose |
-|------|---------|
-| `manifest.json` | Extension config: permissions, service worker, popup |
-| `background.js` | Service worker handling tab tracking logic |
-| `popup.js` | UI logic for displaying statistics |
-| `popup.html` | Popup UI structure |
-| `popup.css` | Styling with CSS variables for theming |
+```
+TabTrace/
+├── manifest.json              # Extension configuration
+├── popup.html                 # Popup HTML entry
+├── src/
+│   ├── background/            # Service Worker modules
+│   │   ├── index.js           # Entry point (~40 lines)
+│   │   ├── storage.js         # Storage manager (~140 lines)
+│   │   ├── tracker.js         # Tab tracker (~130 lines)
+│   │   └── events.js          # Event handlers (~80 lines)
+│   ├── popup/                 # Popup UI modules
+│   │   ├── index.js           # Entry point (~80 lines)
+│   │   ├── mainPage.js        # Main page logic (~160 lines)
+│   │   ├── historyPage.js     # History page logic (~140 lines)
+│   │   └── styles/
+│   │       ├── base.css       # Base styles (~80 lines)
+│   │       ├── components.css # Component styles (~400 lines)
+│   │       └── pages.css      # Page styles (~100 lines)
+│   └── shared/                # Shared modules
+│       └── utils.js           # Utility functions (~110 lines)
+```
+
+### Module System
+
+We use **IIFE (Immediately Invoked Function Expression)** pattern for modularity without build tools:
+
+```javascript
+// Module definition
+(function(global) {
+  'use strict';
+
+  const Module = {
+    method: function() { /* ... */ }
+  };
+
+  // Export to global scope
+  global.ModuleName = Module;
+
+})(typeof window !== 'undefined' ? window : self);
+```
+
+**Benefits**:
+- No build step required
+- Clear dependency management via global namespace
+- Works with Chrome Extension Manifest V3
+- Each file has single responsibility
 
 ### Data Storage (chrome.storage.local)
 
@@ -75,20 +122,30 @@ Two data structures:
 }
 ```
 
-### Key Functions
+### Key Modules
 
-**background.js**:
-- `startTracking(tabId, url, title)` - Begin tracking a tab
-- `updateStats()` - Persist time to storage (called every second)
-- `trackCurrentTab()` - Query and track the active tab
-- `extractDomain(url)` - Parse hostname from URL
+**Background (Service Worker)**:
 
-**popup.js**:
-- `updateSitesList()` - Load and render top 5 sites
-- `updateTotalTime()` - Display today's total
-- `updateCurrentTab()` - Show current active tab info (refreshes every second)
+| Module | Purpose | Key Methods |
+|--------|---------|-------------|
+| `storage.js` | Data persistence | `init()`, `getAll()`, `save()`, `updateStats()` |
+| `tracker.js` | Tab tracking logic | `start()`, `pause()`, `resume()`, `updateTitle()` |
+| `events.js` | Chrome event handling | `handleTabActivated()`, `handleTabUpdated()`, `register()` |
 
-### Event Listeners (background.js)
+**Popup (UI)**:
+
+| Module | Purpose | Key Methods |
+|--------|---------|-------------|
+| `mainPage.js` | Main page display | `updateSitesList()`, `updateTotalTime()`, `updateCurrentTab()` |
+| `historyPage.js` | History page display | `show()`, `hide()`, `loadData()`, `switchPeriod()` |
+
+**Shared**:
+
+| Module | Purpose | Key Functions |
+|--------|---------|---------------|
+| `utils.js` | Common utilities | `getTodayKey()`, `extractDomain()`, `formatTime()`, `getDateRange()` |
+
+### Event Listeners (src/background/events.js)
 
 - `chrome.tabs.onActivated` - Tab switch
 - `chrome.tabs.onUpdated` - URL/title change in active tab
@@ -98,27 +155,12 @@ Two data structures:
 
 ## Code Style
 
-- **Language**: Vanilla JavaScript (ES6+)
+- **Language**: Vanilla JavaScript (ES6+ where supported by Chrome)
 - **Comments**: Chinese comments in source files
 - **Naming**: camelCase for functions/variables
 - **Formatting**: No formatter configured
 - **Async**: Uses async/await and Promises
-
-## Commit Guidelines
-
-**Before every commit**, write documentation in `docs/` directory:
-
-1. Create or update relevant documentation files describing the changes
-2. Documentation should explain what was changed, why, and any important implementation details
-3. Keep docs concise but informative for future reference
-
-Example structure:
-```
-docs/
-├── features/       # Feature documentation
-├── changes/        # Change logs
-└── setup/          # Setup and configuration notes
-```
+- **Module Pattern**: IIFE with global namespace export
 
 ## Configuration
 
@@ -173,3 +215,18 @@ This approach is more reliable than manually adding 8 hours, as it properly hand
 3. **Real-time Updates**: Popup refreshes current tab time every second while open
 
 4. **Daily Reset**: Statistics are keyed by date string (`YYYY-MM-DD`), naturally resetting daily
+
+## Documentation Structure
+
+```
+docs/
+├── changes/        # Change logs for each commit
+├── features/       # Feature documentation
+└── architecture/   # Architecture decisions and notes
+```
+
+**Guidelines**:
+- Document what was changed
+- Document why it was changed
+- Include important implementation details
+- Note any breaking changes

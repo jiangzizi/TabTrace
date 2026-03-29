@@ -1,0 +1,90 @@
+/* Base Styles - 基础样式和变量 */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* 颜色 */
+  --bg-primary: #FAFBFC;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F3F4F6;
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  --accent-blue: #3B82F6;
+  --accent-blue-light: #60A5FA;
+  --accent-blue-dark: #2563EB;
+  --accent-green: #10B981;
+  --accent-green-light: #34D399;
+  --border-color: #E5E7EB;
+  --border-light: #F3F4F6;
+
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+
+  /* 圆角 */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  width: 320px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  padding: 16px;
+}
+
+/* 页面切换 */
+#mainPage {
+  display: block;
+}
+
+#historyPage {
+  display: block;
+}
+
+#historyPage.hidden,
+#mainPage.hidden {
+  display: none;
+}
+
+/* 动画 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.container {
+  animation: fadeInUp 0.3s ease forwards;
+}
