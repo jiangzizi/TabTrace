@@ -16,50 +16,86 @@
         </svg>
         <span class="logo-text">TabTrace</span>
       </div>
-    </header>
-
-    <!-- Today's Stats Card -->
-    <section class="stats-card" aria-labelledby="stats-label">
-      <div class="stats-label" id="stats-label">
-        <svg class="stats-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-          <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        <span>Today's Time</span>
-      </div>
-      <div class="stats-value" id="totalTime" aria-live="polite">0 min</div>
-      <div class="stats-sub" id="visitCount">0 sites visited</div>
-    </section>
-
-    <!-- Top Sites Section -->
-    <section class="top-sites" aria-labelledby="sites-title">
-      <h2 class="section-title" id="sites-title">
-        <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span>Top Sites</span>
-      </h2>
-      <div class="sites-list" id="sitesList" role="list">
-        <div class="empty-state" role="listitem">No data yet</div>
-      </div>
-      <button class="expand-btn" id="expandBtn" aria-expanded="false">
-        <span id="expandText">Show All</span>
-        <svg class="expand-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <path d="M19 9l-7 7-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <button class="history-btn" id="historyBtn" title="历史数据">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </button>
-    </section>
+    </header>
 
-    <!-- Current Tab -->
-    <section class="current-tab" id="currentTabSection" aria-labelledby="current-tab-label">
-      <div class="current-tab-label" id="current-tab-label">Currently Active</div>
-      <div class="current-tab-info">
-        <span class="current-tab-domain" id="currentDomain">-</span>
-        <span class="current-tab-time" id="currentTime" aria-live="polite">0s</span>
+    <!-- Main Page -->
+    <div id="mainPage">
+      <!-- Today's Stats Card -->
+      <section class="stats-card" aria-labelledby="stats-label">
+        <div class="stats-label" id="stats-label">
+          <svg class="stats-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+            <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          <span>Today's Time</span>
+        </div>
+        <div class="stats-value" id="totalTime" aria-live="polite">0 min</div>
+        <div class="stats-sub" id="visitCount">0 sites visited</div>
+      </section>
+
+      <!-- Top Sites Section -->
+      <section class="top-sites" aria-labelledby="sites-title">
+        <h2 class="section-title" id="sites-title">
+          <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Top Sites</span>
+        </h2>
+        <div class="sites-list" id="sitesList" role="list">
+          <div class="empty-state" role="listitem">No data yet</div>
+        </div>
+        <button class="expand-btn" id="expandBtn" aria-expanded="false">
+          <span id="expandText">Show All</span>
+          <svg class="expand-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M19 9l-7 7-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </section>
+
+      <!-- Current Tab -->
+      <section class="current-tab" id="currentTabSection" aria-labelledby="current-tab-label">
+        <div class="current-tab-label" id="current-tab-label">Currently Active</div>
+        <div class="current-tab-info">
+          <span class="current-tab-domain" id="currentDomain">-</span>
+          <span class="current-tab-time" id="currentTime" aria-live="polite">0s</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- History Page -->
+    <div id="historyPage" class="hidden">
+      <div class="history-header">
+        <button class="back-btn" id="backBtn">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Back</span>
+        </button>
+        <span class="history-title">History</span>
       </div>
-    </section>
+      <div class="history-tabs">
+        <button class="history-tab active" data-period="week">Week</button>
+        <button class="history-tab" data-period="month">Month</button>
+        <button class="history-tab" data-period="year">Year</button>
+      </div>
+      <div class="history-content">
+        <div class="history-stats-card">
+          <div class="history-stats-label">Total Time</div>
+          <div class="history-stats-value" id="historyTotalTime">0 min</div>
+        </div>
+        <div class="history-sites" id="historySitesList">
+          <div class="empty-state">No data yet</div>
+        </div>
+      </div>
+    </div>
 
     <!-- Action Buttons -->
     <footer class="actions" role="contentinfo">

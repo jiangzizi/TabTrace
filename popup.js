@@ -8,6 +8,37 @@ function getTodayKey() {
   return `${beijingTime.getUTCFullYear()}-${String(beijingTime.getUTCMonth() + 1).padStart(2, '0')}-${String(beijingTime.getUTCDate()).padStart(2, '0')}`;
 }
 
+// 获取日期范围
+function getDateRange(period) {
+  const dates = [];
+  const today = new Date();
+  const beijingToday = new Date(today.getTime() + 8 * 3600 * 1000);
+  
+  let days;
+  switch (period) {
+    case 'week':
+      days = 7;
+      break;
+    case 'month':
+      days = 30;
+      break;
+    case 'year':
+      days = 365;
+      break;
+    default:
+      days = 7;
+  }
+  
+  for (let i = 0; i < days; i++) {
+    const date = new Date(beijingToday);
+    date.setUTCDate(date.getUTCDate() - i);
+    const dateKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+    dates.push(dateKey);
+  }
+  
+  return dates;
+}
+
 // 格式化时间显示
 function formatTime(seconds) {
   if (seconds < 60) {
@@ -179,6 +210,112 @@ async function updateCurrentTab() {
   }
 }
 
+// ========== 历史数据页面功能 ==========
+
+let currentPeriod = 'week';
+
+// 显示历史页面
+function showHistoryPage() {
+  const mainPage = document.getElementById('mainPage');
+  const historyPage = document.getElementById('historyPage');
+  
+  if (mainPage && historyPage) {
+    mainPage.classList.add('hidden');
+    historyPage.classList.remove('hidden');
+    loadHistoryData(currentPeriod);
+  }
+}
+
+// 显示主页面
+function showMainPage() {
+  const mainPage = document.getElementById('mainPage');
+  const historyPage = document.getElementById('historyPage');
+  
+  if (mainPage && historyPage) {
+    historyPage.classList.add('hidden');
+    mainPage.classList.remove('hidden');
+  }
+}
+
+// 加载历史数据
+function loadHistoryData(period) {
+  chrome.storage.local.get(['dailyStats'], (result) => {
+    const dailyStats = result.dailyStats || {};
+    const dateRange = getDateRange(period);
+    
+    // 聚合数据
+    const aggregatedDomains = {};
+    let totalTime = 0;
+    
+    dateRange.forEach(dateKey => {
+      const dayData = dailyStats[dateKey];
+      if (dayData && dayData.domains) {
+        totalTime += dayData.totalTime || 0;
+        Object.entries(dayData.domains).forEach(([domain, time]) => {
+          aggregatedDomains[domain] = (aggregatedDomains[domain] || 0) + time;
+        });
+      }
+    });
+    
+    // 更新总时长
+    const historyTotalTimeEl = document.getElementById('historyTotalTime');
+    if (historyTotalTimeEl) {
+      historyTotalTimeEl.textContent = formatTime(totalTime);
+    }
+    
+    // 更新网站列表
+    const historySitesListEl = document.getElementById('historySitesList');
+    if (!historySitesListEl) return;
+    
+    const sortedDomains = Object.entries(aggregatedDomains)
+      .sort((a, b) => b[1] - a[1]);
+    
+    if (sortedDomains.length === 0) {
+      historySitesListEl.innerHTML = '<div class="empty-state">No data yet</div>';
+      return;
+    }
+    
+    const maxTime = sortedDomains[0][1];
+    
+    historySitesListEl.innerHTML = sortedDomains.map(([domain, time], index) => {
+      const percentage = Math.round((time / maxTime) * 100);
+      const timeStr = formatTimeShort(time);
+      const displayDomain = domain.replace(/^www\./, '');
+      return `
+        <div class="site-item">
+          <span class="site-rank">${index + 1}</span>
+          <img class="site-favicon" src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32" alt="" loading="lazy" onerror="this.style.display='none'">
+          <div class="site-info">
+            <div class="site-domain" title="${domain}">${displayDomain}</div>
+          </div>
+          <div class="site-right">
+            <span class="site-time">${timeStr}</span>
+            <div class="site-bar">
+              <div class="site-bar-fill" style="width: ${percentage}%"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  });
+}
+
+// 切换历史数据时间段
+function switchHistoryPeriod(period) {
+  currentPeriod = period;
+  
+  // 更新标签样式
+  document.querySelectorAll('.history-tab').forEach(tab => {
+    if (tab.dataset.period === period) {
+      tab.classList.add('active');
+    } else {
+      tab.classList.remove('active');
+    }
+  });
+  
+  loadHistoryData(period);
+}
+
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
   // 只在打开时加载一次数据
@@ -193,4 +330,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 每秒更新一次当前 tab 的时长
   setInterval(updateCurrentTab, 1000);
+  
+  // 绑定历史页面按钮事件
+  const historyBtn = document.getElementById('historyBtn');
+  if (historyBtn) {
+    historyBtn.addEventListener('click', showHistoryPage);
+  }
+  
+  // 绑定返回按钮事件
+  const backBtn = document.getElementById('backBtn');
+  if (backBtn) {
+    backBtn.addEventListener('click', showMainPage);
+  }
+  
+  // 绑定时间段切换事件
+  document.querySelectorAll('.history-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      switchHistoryPeriod(tab.dataset.period);
+    });
+  });
 });
