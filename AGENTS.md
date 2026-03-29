@@ -148,6 +148,22 @@ The extension ignores:
 3. **No Authentication**: No user auth required, all data is local
 4. **Content Security**: No external scripts loaded, inline SVG icons only
 
+### Time Handling
+
+**Beijing Time (UTC+8)**: All date calculations use Beijing time as the standard. The implementation uses `toLocaleString` with `timeZone: "Asia/Shanghai"` for accurate timezone conversion:
+
+```javascript
+// 获取今日日期字符串（以北京时间为准）
+function getTodayKey() {
+  const now = new Date();
+  // 使用北京时间 (UTC+8)
+  const beijingTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Shanghai" }));
+  return `${beijingTime.getFullYear()}-${String(beijingTime.getMonth() + 1).padStart(2, '0')}-${String(beijingTime.getDate()).padStart(2, '0')}`;
+}
+```
+
+This approach is more reliable than manually adding 8 hours, as it properly handles timezone rules including daylight saving time transitions.
+
 ## Extension Behavior Notes
 
 1. **Service Worker Lifecycle**: MV3 service worker may be terminated. The extension re-initializes tracking on browser startup and extension install.

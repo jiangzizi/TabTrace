@@ -1,18 +1,20 @@
 // TabTrace Popup Script
 // 处理 popup 界面的数据展示和交互
 
-// 获取今日日期字符串（以北京时间 UTC+8 24:00为界限）
+// 获取今日日期字符串（以北京时间为准）
 function getTodayKey() {
   const now = new Date();
-  const beijingTime = new Date(now.getTime() + 8 * 3600 * 1000);
-  return `${beijingTime.getUTCFullYear()}-${String(beijingTime.getUTCMonth() + 1).padStart(2, '0')}-${String(beijingTime.getUTCDate()).padStart(2, '0')}`;
+  // 使用北京时间 (UTC+8)
+  const beijingTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Shanghai" }));
+  return `${beijingTime.getFullYear()}-${String(beijingTime.getMonth() + 1).padStart(2, '0')}-${String(beijingTime.getDate()).padStart(2, '0')}`;
 }
 
 // 获取日期范围
 function getDateRange(period) {
   const dates = [];
   const today = new Date();
-  const beijingToday = new Date(today.getTime() + 8 * 3600 * 1000);
+  // 使用北京时间 (UTC+8)
+  const beijingToday = new Date(today.toLocaleString("en-US", { timeZone: "Asia/Shanghai" }));
   
   let days;
   switch (period) {
@@ -31,8 +33,8 @@ function getDateRange(period) {
   
   for (let i = 0; i < days; i++) {
     const date = new Date(beijingToday);
-    date.setUTCDate(date.getUTCDate() - i);
-    const dateKey = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, '0')}-${String(date.getUTCDate()).padStart(2, '0')}`;
+    date.setDate(date.getDate() - i);
+    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     dates.push(dateKey);
   }
   
