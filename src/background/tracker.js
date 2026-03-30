@@ -39,10 +39,10 @@
      * @param {string} url - Tab URL
      * @param {string} title - Tab 标题
      */
-    start: function(tabId, url, title) {
+    start: async function(tabId, url, title) {
       // 先更新上一个 tab 的统计
       if (activeTabId) {
-        updateCurrentStats();
+        await updateCurrentStats();
       }
 
       activeTabId = tabId;

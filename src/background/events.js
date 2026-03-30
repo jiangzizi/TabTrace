@@ -15,7 +15,7 @@
       try {
         const tab = await chrome.tabs.get(activeInfo.tabId);
         if (tab && Tracker.isTrackableUrl(tab.url)) {
-          Tracker.start(tab.id, tab.url, tab.title);
+          await Tracker.start(tab.id, tab.url, tab.title);
         }
       } catch (error) {
         console.error('TabTrace: Error on tab activated', error);
@@ -29,12 +29,12 @@
      * @param {Object} tab - Tab 对象
      * @param {number|null} currentActiveTabId - 当前活跃的 Tab ID
      */
-    handleTabUpdated: function(tabId, changeInfo, tab, currentActiveTabId) {
+    handleTabUpdated: async function(tabId, changeInfo, tab, currentActiveTabId) {
       if (tabId !== currentActiveTabId) return;
 
       if (changeInfo.url) {
         if (Tracker.isTrackableUrl(tab.url)) {
-          Tracker.start(tab.id, tab.url, tab.title);
+          await Tracker.start(tab.id, tab.url, tab.title);
         }
       } else if (changeInfo.title && !changeInfo.url) {
         Tracker.updateTitle(changeInfo.title);
